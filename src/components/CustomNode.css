@@ -5,7 +5,7 @@
   border: 1px solid var(--border-color);
   background: rgba(22, 22, 26, 0.85);
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), background-color var(--transition-fast);
   position: relative;
   overflow: visible;
   display: flex;
@@ -90,7 +90,11 @@
   overflow: hidden;
   margin-top: 8px;
   font-size: 0.8rem;
+  line-height: 18px;
   color: var(--text-secondary);
   white-space: pre-wrap;
   word-break: break-word;
+  min-height: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
 }

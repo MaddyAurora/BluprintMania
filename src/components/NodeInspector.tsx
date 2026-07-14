@@ -1,4 +1,4 @@
-import { X, Palette, Type, FileText } from 'lucide-react';
+import { X, Palette, Type, FileText, Trash2 } from 'lucide-react';
 import type { BlueprintNodeData, BlueprintNode } from '../types';
 import './NodeInspector.css';
 
@@ -6,6 +6,7 @@ interface NodeInspectorProps {
   node: BlueprintNode | null;
   onClose: () => void;
   onUpdateNode: (nodeId: string, data: Partial<BlueprintNodeData>) => void;
+  onDeleteNode: (nodeId: string) => void;
 }
 
 const COLORS = [
@@ -13,7 +14,7 @@ const COLORS = [
   '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'
 ];
 
-export default function NodeInspector({ node, onClose, onUpdateNode }: NodeInspectorProps) {
+export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: NodeInspectorProps) {
   if (!node) return null;
 
   return (
@@ -69,6 +70,17 @@ export default function NodeInspector({ node, onClose, onUpdateNode }: NodeInspe
             placeholder="Add detailed notes here..."
             rows={5}
           />
+        </div>
+
+        <div className="form-group" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+          <button 
+            className="btn" 
+            style={{ width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+            onClick={() => onDeleteNode(node.id)}
+          >
+            <Trash2 size={16} style={{ marginRight: '8px' }} />
+            Delete Node
+          </button>
         </div>
       </div>
     </div>

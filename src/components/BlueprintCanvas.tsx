@@ -27,6 +27,8 @@ interface BlueprintCanvasProps {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   onConnectEnd: (event: MouseEvent | TouchEvent, connectionState: any) => void;
+  onDragOver?: (event: React.DragEvent) => void;
+  onDrop?: (event: React.DragEvent) => void;
 }
 
 export default function BlueprintCanvas({
@@ -36,6 +38,8 @@ export default function BlueprintCanvas({
   onEdgesChange,
   onConnect,
   onConnectEnd,
+  onDragOver,
+  onDrop,
 }: BlueprintCanvasProps) {
   return (
     <div style={{ width: '100%', height: '100%' }}>
@@ -46,7 +50,10 @@ export default function BlueprintCanvas({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectEnd={onConnectEnd}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
         nodeTypes={nodeTypes}
+        deleteKeyCode={['Backspace', 'Delete']}
         defaultEdgeOptions={{ style: { strokeWidth: 6 } }}
         fitView
         colorMode="dark"

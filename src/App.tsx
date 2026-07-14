@@ -29,7 +29,7 @@ const initialEdges: Edge[] = [];
 function BlueprintEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState<BlueprintNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { getViewport, screenToFlowPosition } = useReactFlow();
+  const { getViewport, setViewport, screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
     (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
@@ -103,6 +103,42 @@ function BlueprintEditor() {
     exportBlueprintToJSON(nodes, edges, viewport);
   }, [nodes, edges, getViewport]);
 
+  const onImport = useCallback((data: any) => {
+    if (data && Array.isArray(data.nodes) && Array.isArray(data.edges)) {
+      setNodes(data.nodes);
+      setEdges(data.edges);
+      if (data.viewport) {
+        setViewport(data.viewport);
+      }
+    } else {
+      alert('Invalid blueprint file. Please ensure it is a valid BluprintMania export.');
+    }
+  }, [setNodes, setEdges, setViewport]);
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }, []);
+
+  const onDrop = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file && (file.type === 'application/json' || file.name.endsWith('.json'))) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target?.result as string);
+          onImport(json);
+        } catch (err) {
+          alert('Failed to parse JSON file');
+        }
+      };
+      reader.readAsText(file);
+    } else if (file) {
+      alert('Please drop a valid .json file.');
+    }
+  }, [onImport]);
+
   const onUpdateNode = useCallback((nodeId: string, data: Partial<BlueprintNodeData>) => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -124,11 +160,16 @@ function BlueprintEditor() {
     setNodes((nds) => nds.map((n) => (n.selected ? { ...n, selected: false } : n)));
   }, [setNodes]);
 
+  const onDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+  }, [setNodes, setEdges]);
+
   const selectedNode = nodes.find((n) => n.selected) || null;
 
   return (
     <>
-      <Toolbar onAddNode={onAddNode} onExport={onExport} />
+      <Toolbar onAddNode={onAddNode} onExport={onExport} onImport={onImport} />
       
       <BlueprintCanvas
         nodes={nodes}
@@ -137,12 +178,15 @@ function BlueprintEditor() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectEnd={onConnectEnd}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
       />
 
       <NodeInspector
         node={selectedNode}
         onClose={closeInspector}
         onUpdateNode={onUpdateNode}
+        onDeleteNode={onDeleteNode}
       />
     </>
   );
