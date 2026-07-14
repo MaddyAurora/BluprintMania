@@ -1,6 +1,8 @@
 # 🌌 BluprintMania
 
 Welcome to **BluprintMania** — a dynamic, and highly interactive node-based blueprint editor. Built with modern web technologies, it allows you to map out your ideas, design architectures, and create stunning visual workflows with a sleek glassmorphism aesthetic.
+<img width="1523" height="863" alt="Screenshot 2026-07-14 035335" src="https://github.com/user-attachments/assets/28124323-bd06-4ca9-a8a3-73a69a34a2e6" />
+
 
 ---
 
