@@ -98,3 +98,19 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
 }
+
+.node-image-container {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.node-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

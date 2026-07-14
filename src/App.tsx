@@ -65,6 +65,7 @@ function BlueprintEditor() {
           color: '#06b6d4',
           notes: '',
         },
+        selected: true,
       };
 
       setNodes((nds) => nds.concat(newNode));

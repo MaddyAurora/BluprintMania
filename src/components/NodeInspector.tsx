@@ -1,4 +1,5 @@
-import { X, Palette, Type, FileText, Trash2 } from 'lucide-react';
+import { X, Palette, Type, FileText, Trash2, Image as ImageIcon, Upload } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
 import type { BlueprintNodeData, BlueprintNode } from '../types';
 import './NodeInspector.css';
 
@@ -15,6 +16,74 @@ const COLORS = [
 ];
 
 export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: NodeInspectorProps) {
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const notesInputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  // Auto-focus the name input whenever a new node is selected/created
+  useEffect(() => {
+    if (node) {
+      // Small timeout ensures the sidebar animation/render completes before focusing
+      const timer = setTimeout(() => {
+        nameInputRef.current?.focus();
+        // Optionally select all text so typing immediately overwrites "New Node"
+        nameInputRef.current?.select();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [node?.id]);
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault();
+      notesInputRef.current?.focus();
+    }
+  };
+
+  const handleImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    if (!node) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        const MAX_WIDTH = 800;
+        
+        let finalDataUrl = dataUrl;
+        
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            finalDataUrl = canvas.toDataURL(file.type, 0.8);
+          }
+        }
+
+        onUpdateNode(node.id, { 
+          image: finalDataUrl,
+          imageWidth: width,
+          imageHeight: height,
+          imagePosition: node.data.imagePosition || 'before'
+        });
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
   if (!node) return null;
 
   return (
@@ -33,9 +102,11 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
             Name
           </label>
           <input
+            ref={nameInputRef}
             className="input-field"
             value={node.data.label}
             onChange={(e) => onUpdateNode(node.id, { label: e.target.value })}
+            onKeyDown={handleNameKeyDown}
             placeholder="Node Name"
           />
         </div>
@@ -64,12 +135,75 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
             Notes
           </label>
           <textarea
+            ref={notesInputRef}
             className="input-field textarea-field"
             value={node.data.notes}
             onChange={(e) => onUpdateNode(node.id, { notes: e.target.value })}
             placeholder="Add detailed notes here..."
             rows={5}
           />
+        </div>
+        
+        <div className="form-group">
+          <label>
+            <ImageIcon size={14} />
+            Image
+          </label>
+          
+          {node.data.image ? (
+            <div className="image-preview-container">
+              <img src={node.data.image} alt="Node attachment" className="image-thumbnail" />
+              <button 
+                className="remove-image-btn" 
+                onClick={() => onUpdateNode(node.id, { image: undefined, imageWidth: undefined, imageHeight: undefined })}
+                title="Remove Image"
+              >
+                <X size={14} />
+              </button>
+              
+              <div className="position-toggles">
+                <button 
+                  className={`btn ${node.data.imagePosition === 'before' || !node.data.imagePosition ? 'active' : ''}`}
+                  onClick={() => onUpdateNode(node.id, { imagePosition: 'before' })}
+                >
+                  Before Note
+                </button>
+                <button 
+                  className={`btn ${node.data.imagePosition === 'after' ? 'active' : ''}`}
+                  onClick={() => onUpdateNode(node.id, { imagePosition: 'after' })}
+                >
+                  After Note
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div 
+              className={`image-upload-zone ${isDragActive ? 'drag-active' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
+              onDragLeave={() => setIsDragActive(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragActive(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) handleImageFile(file);
+              }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageFile(file);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }} 
+              />
+              <Upload size={24} className="image-upload-icon" />
+              <span>Drag & drop an image or click to browse</span>
+            </div>
+          )}
         </div>
 
         <div className="form-group" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
