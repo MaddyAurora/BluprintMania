@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   ReactFlowProvider,
   useNodesState,
@@ -6,7 +6,7 @@ import {
   addEdge,
   useReactFlow,
 } from '@xyflow/react';
-import type { Connection, Edge } from '@xyflow/react';
+import type { Connection, Edge, ConnectionState } from '@xyflow/react';
 import { v4 as uuidv4 } from 'uuid';
 
 import BlueprintCanvas from './components/BlueprintCanvas';
@@ -29,12 +29,59 @@ const initialEdges: Edge[] = [];
 function BlueprintEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState<BlueprintNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const { getViewport } = useReactFlow();
+  const { getViewport, screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
     (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
+  );
+
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent, connectionState: ConnectionState) => {
+      // If the connection was valid, it connected to an existing node, so we do nothing.
+      if (connectionState.isValid) return;
+
+      // Extract coordinates from mouse or touch event
+      const clientX = 'changedTouches' in event ? event.changedTouches[0].clientX : (event as MouseEvent).clientX;
+      const clientY = 'changedTouches' in event ? event.changedTouches[0].clientY : (event as MouseEvent).clientY;
+
+      // Convert screen coordinates to canvas coordinates
+      const position = screenToFlowPosition({ x: clientX, y: clientY });
+
+      // Calculate an offset so the node appears exactly where dropped, not anchored by top-left
+      // A standard node is 180x80 roughly, so subtract half
+      const adjustedPosition = {
+        x: position.x - 90,
+        y: position.y - 40,
+      };
+
+      const newNodeId = uuidv4();
+      const newNode: BlueprintNode = {
+        id: newNodeId,
+        type: 'custom',
+        position: adjustedPosition,
+        data: {
+          label: 'New Node',
+          color: '#06b6d4',
+          notes: '',
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+
+      if (connectionState.fromNode?.id) {
+        setEdges((eds) =>
+          eds.concat({
+            id: uuidv4(),
+            source: connectionState.fromNode!.id,
+            sourceHandle: connectionState.fromHandle?.id || null,
+            target: newNodeId,
+            targetHandle: null,
+          })
+        );
+      }
+    },
+    [screenToFlowPosition, setNodes, setEdges]
   );
 
   const onAddNode = useCallback(() => {
@@ -56,14 +103,6 @@ function BlueprintEditor() {
     exportBlueprintToJSON(nodes, edges, viewport);
   }, [nodes, edges, getViewport]);
 
-  const onNodeClick = useCallback((_: React.MouseEvent, node: BlueprintNode) => {
-    setSelectedNodeId(node.id);
-  }, []);
-
-  const onPaneClick = useCallback(() => {
-    setSelectedNodeId(null);
-  }, []);
-
   const onUpdateNode = useCallback((nodeId: string, data: Partial<BlueprintNodeData>) => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -81,7 +120,11 @@ function BlueprintEditor() {
     );
   }, [setNodes]);
 
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId) || null;
+  const closeInspector = useCallback(() => {
+    setNodes((nds) => nds.map((n) => (n.selected ? { ...n, selected: false } : n)));
+  }, [setNodes]);
+
+  const selectedNode = nodes.find((n) => n.selected) || null;
 
   return (
     <>
@@ -93,13 +136,12 @@ function BlueprintEditor() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
+        onConnectEnd={onConnectEnd}
       />
 
       <NodeInspector
         node={selectedNode}
-        onClose={() => setSelectedNodeId(null)}
+        onClose={closeInspector}
         onUpdateNode={onUpdateNode}
       />
     </>

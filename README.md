@@ -1,32 +1,75 @@
-# React + TypeScript + Vite
+# 🌌 BluprintMania
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Welcome to **BluprintMania** — a dynamic, and highly interactive node-based blueprint editor. Built with modern web technologies, it allows you to map out your ideas, design architectures, and create stunning visual workflows with a sleek glassmorphism aesthetic.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
 
-## React Compiler
+- **🎨 Premium Aesthetic**: A gorgeous dark mode UI with glassmorphic panels, vibrant accent colors, and buttery-smooth micro-animations.
+- **♾️ Infinite Canvas**: Pan and zoom across an infinite workspace to build blueprints of any size.
+- **🧩 Dynamic Custom Nodes**: 
+  - Change node names and assign distinct color accents.
+  - Add detailed multi-line notes.
+  - Smoothly resize nodes from the corners to automatically reveal expanded content.
+- **🔗 Smart Connections**: Easily link nodes together with thick, interactive "cables."
+- **💾 Export to JSON**: One-click serialization of your entire blueprint (nodes, positions, edges, and notes) into a structured JSON file.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🛠️ Technology Stack
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **[React 18](https://react.dev/)**: For a robust, component-driven UI architecture.
+- **[Vite](https://vitejs.dev/)**: For lightning-fast Hot Module Replacement (HMR) and optimized builds.
+- **[@xyflow/react](https://reactflow.dev/)**: Powering the core node-based engine, viewport management, and interactive edges.
+- **[Lucide React](https://lucide.dev/)**: For clean, modern SVG icons.
+- **Vanilla CSS**: Custom-tailored CSS variables and flexbox/grid layouts ensuring complete design flexibility without the overhead of UI frameworks.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+---
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🚀 Getting Started
+
+Follow these instructions to run BluprintMania locally on your machine.
+
+### Prerequisites
+
+Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+1. **Clone the repository** (or navigate to the project directory):
+   ```bash
+   cd BluprintMania
+   ```
+
+2. **Install the dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**:
+   You can either run the provided batch file:
+   ```bash
+   start_server.bat
+   ```
+   Or use npm directly:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the app**:
+   Navigate to the URL provided in your terminal (usually `http://localhost:5173`).
+
+---
+
+## 💡 How to Use
+
+1. **Add Nodes**: Click the "Add Node" button in the top-left toolbar to spawn a new block.
+2. **Move & Resize**: Drag nodes around the canvas. Grab the square corner handles to stretch a node and reveal its detailed notes.
+3. **Connect**: Click and drag from the large colored dot at the bottom of one node to the top dot of another.
+4. **Customize**: Click on any node to open the floating inspector panel on the right. Change its name, color, and type out your notes.
+5. **Export**: Click the "Export" button to instantly download your current blueprint configuration as a `.json` file.
+
+---
+
+*Crafted with precision for optimal brainstorming.*

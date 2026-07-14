@@ -26,8 +26,7 @@ interface BlueprintCanvasProps {
   onNodesChange: OnNodesChange<BlueprintNode>;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
-  onNodeClick: (event: React.MouseEvent, node: BlueprintNode) => void;
-  onPaneClick: (event: React.MouseEvent) => void;
+  onConnectEnd: (event: MouseEvent | TouchEvent, connectionState: any) => void;
 }
 
 export default function BlueprintCanvas({
@@ -36,8 +35,7 @@ export default function BlueprintCanvas({
   onNodesChange,
   onEdgesChange,
   onConnect,
-  onNodeClick,
-  onPaneClick,
+  onConnectEnd,
 }: BlueprintCanvasProps) {
   return (
     <div style={{ width: '100%', height: '100%' }}>
@@ -47,8 +45,7 @@ export default function BlueprintCanvas({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onNodeClick={onNodeClick}
-        onPaneClick={onPaneClick}
+        onConnectEnd={onConnectEnd}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={{ style: { strokeWidth: 6 } }}
         fitView
