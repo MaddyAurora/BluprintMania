@@ -1,6 +1,7 @@
 # 🌌 BluprintMania
 
 Welcome to **BluprintMania** — a dynamic, and highly interactive node-based blueprint editor. Built with modern web technologies, it allows you to map out your ideas, design architectures, and create stunning visual workflows with a sleek glassmorphism aesthetic.
+
 <img width="1523" height="863" alt="Screenshot 2026-07-14 035335" src="https://github.com/user-attachments/assets/28124323-bd06-4ca9-a8a3-73a69a34a2e6" />
 
 
@@ -37,27 +38,20 @@ Follow these instructions to run BluprintMania locally on your machine.
 
 Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
 
-### Installation
+### Installation & Updating
 
-1. **Clone the repository** (or navigate to the project directory):
+1. **Navigate to the project directory**.
+   Download the project zip file or use git and run the following command:
    ```bash
-   cd BluprintMania
+   git clone https://github.com/MaddyAurora/BluprintMania
    ```
 
-2. **Install the dependencies**:
-   ```bash
-   npm install
-   ```
+2. **Install / Update Dependencies**:
+   Simply double-click the `install.bat` file! This will automatically check for and install all required dependencies. If you already have them installed, it will safely update them to the latest compatible versions.
 
 3. **Start the development server**:
-   You can either run the provided batch file:
-   ```bash
-   start_server.bat
-   ```
-   Or use npm directly:
-   ```bash
-   npm run dev
-   ```
+   Double-click the `start_server.bat` file.
+   Alternatively, you can run `npm run dev` in your terminal.
 
 4. **Open the app**:
    Navigate to the URL provided in your terminal (usually `http://localhost:5173`).
