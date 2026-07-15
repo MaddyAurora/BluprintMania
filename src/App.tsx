@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ReactFlowProvider,
   useNodesState,
@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import BlueprintCanvas from './components/BlueprintCanvas';
 import Toolbar from './components/Toolbar';
 import NodeInspector from './components/NodeInspector';
+import ExportModal from './components/ExportModal';
 import { exportBlueprintToJSON } from './utils/exportBlueprint';
 import type { BlueprintNodeData, BlueprintNode } from './types';
 
@@ -29,6 +30,7 @@ const initialEdges: Edge[] = [];
 function BlueprintEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState<BlueprintNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const { getViewport, setViewport, screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
@@ -115,9 +117,14 @@ function BlueprintEditor() {
     setNodes((nds) => nds.map((n) => ({ ...n, selected: false })).concat(newNode));
   }, [setNodes, screenToFlowPosition]);
 
-  const onExport = useCallback(() => {
+  const onToolbarExport = useCallback(() => {
+    setIsExportModalOpen(true);
+  }, []);
+
+  const onExport = useCallback((filename: string) => {
     const viewport = getViewport();
-    exportBlueprintToJSON(nodes, edges, viewport);
+    exportBlueprintToJSON(nodes, edges, viewport, filename);
+    setIsExportModalOpen(false);
   }, [nodes, edges, getViewport]);
 
   const onImport = useCallback((data: any) => {
@@ -195,7 +202,7 @@ function BlueprintEditor() {
 
   return (
     <>
-      <Toolbar onAddNode={onAddNode} onExport={onExport} onImport={onImport} />
+      <Toolbar onAddNode={onAddNode} onExport={onToolbarExport} onImport={onImport} />
       
       <BlueprintCanvas
         nodes={nodes}
@@ -214,6 +221,12 @@ function BlueprintEditor() {
         onClose={closeInspector}
         onUpdateNode={onUpdateNode}
         onDeleteNode={onDeleteNode}
+      />
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={onExport}
       />
     </>
   );

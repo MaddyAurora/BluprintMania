@@ -4,7 +4,8 @@ import type { BlueprintNode } from '../types';
 export const exportBlueprintToJSON = (
   nodes: BlueprintNode[],
   edges: Edge[],
-  viewport?: Viewport
+  viewport?: Viewport,
+  filename?: string
 ) => {
   const exportData = {
     nodes,
@@ -17,7 +18,8 @@ export const exportBlueprintToJSON = (
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
   const downloadAnchorNode = document.createElement('a');
   downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", `blueprint_${Date.now()}.json`);
+  const finalFilename = filename ? (filename.endsWith('.json') ? filename : `${filename}.json`) : `blueprint_${Date.now()}.json`;
+  downloadAnchorNode.setAttribute("download", finalFilename);
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
