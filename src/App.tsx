@@ -64,20 +64,23 @@ function BlueprintEditor() {
           label: 'New Node',
           color: '#06b6d4',
           notes: '',
+          isNew: true,
         },
         selected: true,
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((nds) => nds.map((n) => ({ ...n, selected: false })).concat(newNode));
 
       if (connectionState.fromNode?.id) {
+        const isTarget = connectionState.fromHandle?.type === 'target';
+        
         setEdges((eds) =>
           eds.concat({
             id: uuidv4(),
-            source: connectionState.fromNode!.id,
-            sourceHandle: connectionState.fromHandle?.id || null,
-            target: newNodeId,
-            targetHandle: null,
+            source: isTarget ? newNodeId : connectionState.fromNode!.id,
+            sourceHandle: isTarget ? null : (connectionState.fromHandle?.id || null),
+            target: isTarget ? connectionState.fromNode!.id : newNodeId,
+            targetHandle: isTarget ? (connectionState.fromHandle?.id || null) : null,
           })
         );
       }
@@ -86,18 +89,31 @@ function BlueprintEditor() {
   );
 
   const onAddNode = useCallback(() => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const centerFlowPosition = screenToFlowPosition({ x: centerX, y: centerY });
+    
+    // Random offset between -150 and +150
+    const offsetX = (Math.random() - 0.5) * 300;
+    const offsetY = (Math.random() - 0.5) * 300;
+
     const newNode: BlueprintNode = {
       id: uuidv4(),
       type: 'custom',
-      position: { x: Math.random() * 300 + 100, y: Math.random() * 300 + 100 },
-      data: {
-        label: 'New Node',
-        color: '#10b981',
-        notes: '',
+      position: { 
+        x: centerFlowPosition.x + offsetX - 90, 
+        y: centerFlowPosition.y + offsetY - 40 
       },
-    };
-    setNodes((nds) => nds.concat(newNode));
-  }, [setNodes]);
+      data: {
+          label: 'New Node',
+          color: '#10b981',
+          notes: '',
+          isNew: true,
+        },
+        selected: true,
+      };
+    setNodes((nds) => nds.map((n) => ({ ...n, selected: false })).concat(newNode));
+  }, [setNodes, screenToFlowPosition]);
 
   const onExport = useCallback(() => {
     const viewport = getViewport();
@@ -166,6 +182,15 @@ function BlueprintEditor() {
     setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
   }, [setNodes, setEdges]);
 
+  const onNodeClick = useCallback((event: React.MouseEvent, node: BlueprintNode) => {
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        selected: n.id === node.id || (event.shiftKey && n.selected),
+      }))
+    );
+  }, [setNodes]);
+
   const selectedNode = nodes.find((n) => n.selected) || null;
 
   return (
@@ -179,6 +204,7 @@ function BlueprintEditor() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectEnd={onConnectEnd}
+        onNodeClick={onNodeClick}
         onDragOver={onDragOver}
         onDrop={onDrop}
       />

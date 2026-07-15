@@ -11,29 +11,34 @@ interface NodeInspectorProps {
 }
 
 const COLORS = [
-  '#646cff', '#10b981', '#f59e0b', '#ef4444', 
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'
+  '#646cff', '#10b981', '#f59e0b', '#ef4444',
+  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+  '#2563eb', '#059686', '#84cc16', '#f1ee36ff',
+  '#a03cab', '#e11d48', '#203CA8', '#6e798fff'
 ];
 
 export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: NodeInspectorProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const notesInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [isDragActive, setIsDragActive] = useState(false);
 
   // Auto-focus the name input whenever a new node is selected/created
   useEffect(() => {
-    if (node) {
+    if (node && node.data.isNew) {
       // Small timeout ensures the sidebar animation/render completes before focusing
       const timer = setTimeout(() => {
         nameInputRef.current?.focus();
         // Optionally select all text so typing immediately overwrites "New Node"
         nameInputRef.current?.select();
+
+        // Clear the isNew flag so it doesn't auto-focus again on subsequent selections
+        onUpdateNode(node.id, { isNew: false });
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [node?.id]);
+  }, [node?.id, node?.data.isNew, onUpdateNode]);
 
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Tab' && !e.shiftKey) {
@@ -45,23 +50,23 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     if (!node) return;
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
-      
+
       const img = new Image();
       img.onload = () => {
         let width = img.width;
         let height = img.height;
         const MAX_WIDTH = 800;
-        
+
         let finalDataUrl = dataUrl;
-        
+
         if (width > MAX_WIDTH) {
           height = Math.round((height * MAX_WIDTH) / width);
           width = MAX_WIDTH;
-          
+
           const canvas = document.createElement('canvas');
           canvas.width = width;
           canvas.height = height;
@@ -72,7 +77,7 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
           }
         }
 
-        onUpdateNode(node.id, { 
+        onUpdateNode(node.id, {
           image: finalDataUrl,
           imageWidth: width,
           imageHeight: height,
@@ -143,32 +148,32 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
             rows={5}
           />
         </div>
-        
+
         <div className="form-group">
           <label>
             <ImageIcon size={14} />
             Image
           </label>
-          
+
           {node.data.image ? (
             <div className="image-preview-container">
               <img src={node.data.image} alt="Node attachment" className="image-thumbnail" />
-              <button 
-                className="remove-image-btn" 
+              <button
+                className="remove-image-btn"
                 onClick={() => onUpdateNode(node.id, { image: undefined, imageWidth: undefined, imageHeight: undefined })}
                 title="Remove Image"
               >
                 <X size={14} />
               </button>
-              
+
               <div className="position-toggles">
-                <button 
+                <button
                   className={`btn ${node.data.imagePosition === 'before' || !node.data.imagePosition ? 'active' : ''}`}
                   onClick={() => onUpdateNode(node.id, { imagePosition: 'before' })}
                 >
                   Before Note
                 </button>
-                <button 
+                <button
                   className={`btn ${node.data.imagePosition === 'after' ? 'active' : ''}`}
                   onClick={() => onUpdateNode(node.id, { imagePosition: 'after' })}
                 >
@@ -177,7 +182,7 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
               </div>
             </div>
           ) : (
-            <div 
+            <div
               className={`image-upload-zone ${isDragActive ? 'drag-active' : ''}`}
               onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
               onDragLeave={() => setIsDragActive(false)}
@@ -189,16 +194,16 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
               }}
               onClick={() => fileInputRef.current?.click()}
             >
-              <input 
-                type="file" 
-                accept="image/*" 
-                ref={fileInputRef} 
-                style={{ display: 'none' }} 
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) handleImageFile(file);
                   if (fileInputRef.current) fileInputRef.current.value = '';
-                }} 
+                }}
               />
               <Upload size={24} className="image-upload-icon" />
               <span>Drag & drop an image or click to browse</span>
@@ -207,8 +212,8 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
         </div>
 
         <div className="form-group" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-          <button 
-            className="btn" 
+          <button
+            className="btn"
             style={{ width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}
             onClick={() => onDeleteNode(node.id)}
           >

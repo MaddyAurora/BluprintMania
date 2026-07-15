@@ -27,6 +27,7 @@ interface BlueprintCanvasProps {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   onConnectEnd: (event: MouseEvent | TouchEvent, connectionState: any) => void;
+  onNodeClick?: (event: React.MouseEvent, node: BlueprintNode) => void;
   onDragOver?: (event: React.DragEvent) => void;
   onDrop?: (event: React.DragEvent) => void;
 }
@@ -38,6 +39,7 @@ export default function BlueprintCanvas({
   onEdgesChange,
   onConnect,
   onConnectEnd,
+  onNodeClick,
   onDragOver,
   onDrop,
 }: BlueprintCanvasProps) {
@@ -50,6 +52,7 @@ export default function BlueprintCanvas({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onConnectEnd={onConnectEnd}
+        onNodeClick={onNodeClick}
         onDragOver={onDragOver}
         onDrop={onDrop}
         nodeTypes={nodeTypes}

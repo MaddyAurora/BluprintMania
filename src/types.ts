@@ -8,6 +8,7 @@ export type BlueprintNodeData = {
   imageWidth?: number; // Intrinsic width
   imageHeight?: number; // Intrinsic height
   imagePosition?: 'before' | 'after'; // Position relative to notes
+  isNew?: boolean; // Flag to indicate if the node was just created
 };
 
 export type BlueprintNode = Node<BlueprintNodeData, 'custom'>;

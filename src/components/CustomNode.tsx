@@ -1,12 +1,12 @@
 import { memo, useRef, useState, useEffect } from 'react';
-import { Handle, Position, NodeResizer } from '@xyflow/react';
+import { Handle, Position, NodeResizer, useReactFlow } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { FileText, Image as ImageIcon } from 'lucide-react';
 import type { BlueprintNode } from '../types';
 import './CustomNode.css';
 
-const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>) => {
-  const isExpanded = height && height > 100;
+const CustomNode = ({ id, data, selected, width, height }: NodeProps<BlueprintNode>) => {
+  const { setNodes } = useReactFlow();
   const hasNotes = Boolean(data.notes && data.notes.trim().length > 0);
   const hasImage = Boolean(data.image && data.imageWidth && data.imageHeight);
   
@@ -23,11 +23,16 @@ const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>)
       let h = currentHeaderHeight + 24; 
       
       // Expand minimum boundary if it has interactive elements
-      if (hasNotes || hasImage) {
-        h += 34; // Approximate height of the indicator plus its margin
+      let extraHeight = 0;
+      if (hasImage && hasNotes) {
+        extraHeight = 34 + 26; // Space for image indicator + 1 line of notes
+      } else if (hasImage) {
+        extraHeight = 34; // Space for image indicator
+      } else if (hasNotes) {
+        extraHeight = 26; // Space for 1 line of notes
       }
       
-      setMinAllowedHeight(Math.max(50, h));
+      setMinAllowedHeight(Math.max(50, h + extraHeight));
     }
   }, [data.label, hasNotes, hasImage]);
 
@@ -41,10 +46,11 @@ const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>)
 
   const imageTotalSpace = renderedImageHeight > 0 ? renderedImageHeight + 8 : 0; // +8 for margin-top
 
-  let maxLines = 1;
+  let maxLines = 2; // Default to 2 lines if not explicitly sized
   let showImage = false;
+  let showNotes = hasNotes;
   
-  if (isExpanded && height) {
+  if (height) {
     let availableHeight = height - 24 - headerHeight - 8;
     
     // Check if the image fits in the total available space
@@ -53,11 +59,20 @@ const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>)
       availableHeight -= imageTotalSpace; // Deduct space taken by the image
     }
     
-    maxLines = Math.max(1, Math.floor(availableHeight / 18));
+    // Deduct space for the image indicator if the image is present but not shown
+    if (hasImage && !showImage) {
+      availableHeight -= 34;
+    }
+    
+    // Only show notes if there's enough space remaining for at least 1 line (18px)
+    if (availableHeight >= 18) {
+      maxLines = Math.max(1, Math.floor(availableHeight / 18));
+    } else {
+      showNotes = false;
+    }
   }
-  
-  // Only show notes if there's enough space remaining after the image for at least 1 line (18px)
-  const showNotes = hasNotes && isExpanded && (!showImage || (height! - 24 - headerHeight - 8 - imageTotalSpace) >= 18);
+
+  const showImageIndicator = hasImage && !showImage;
 
   const imageBlock = showImage && (
     <div className="node-image-container" style={{ height: renderedImageHeight }}>
@@ -89,6 +104,14 @@ const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>)
       <div 
         className={`custom-node glass ${selected ? 'selected' : ''}`}
         style={{ '--node-color': data.color } as React.CSSProperties}
+        onPointerDown={(e) => {
+          if (!selected) {
+            setNodes((nds) => nds.map((n) => ({
+              ...n,
+              selected: n.id === id || (e.shiftKey && n.selected),
+            })));
+          }
+        }}
       >
         <Handle 
           type="target" 
@@ -101,16 +124,16 @@ const CustomNode = ({ data, selected, width, height }: NodeProps<BlueprintNode>)
           <div className="node-title">{data.label || 'Untitled Node'}</div>
         </div>
         
-        {(hasNotes || hasImage) && !isExpanded && (
+        {showImageIndicator && (
           <div className="node-notes-indicator">
-            {hasImage ? <ImageIcon size={14} /> : <FileText size={14} />}
-            <span>{hasNotes && hasImage ? 'Info & Image' : hasImage ? 'Image attached' : 'Info'}</span>
+            <ImageIcon size={14} />
+            <span>Image attached</span>
           </div>
         )}
 
-        {isExpanded && data.imagePosition === 'before' && imageBlock}
-        {isExpanded && notesBlock}
-        {isExpanded && (data.imagePosition === 'after' || !data.imagePosition) && imageBlock}
+        {showImage && data.imagePosition === 'before' && imageBlock}
+        {notesBlock}
+        {showImage && (data.imagePosition === 'after' || !data.imagePosition) && imageBlock}
 
         <Handle 
           type="source" 
