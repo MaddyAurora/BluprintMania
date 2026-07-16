@@ -47,7 +47,16 @@ export default function BlueprintCanvas({
   onDrop,
 }: BlueprintCanvasProps) {
   const [isLocked, setIsLocked] = useState(false);
-  const [showMinimap, setShowMinimap] = useState(true);
+  const [showMinimap, setShowMinimap] = useState(() => {
+    const saved = localStorage.getItem('blueprint-minimap-visible');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const handleToggleMinimap = () => {
+    const newValue = !showMinimap;
+    setShowMinimap(newValue);
+    localStorage.setItem('blueprint-minimap-visible', JSON.stringify(newValue));
+  };
 
   return (
     <div style={{ width: '100%', height: '100%' }}>
@@ -77,7 +86,7 @@ export default function BlueprintCanvas({
           <ControlButton onClick={() => setIsLocked(!isLocked)} title="Toggle Interactivity">
             {isLocked ? <Lock size={14} /> : <Unlock size={14} />}
           </ControlButton>
-          <ControlButton onClick={() => setShowMinimap(!showMinimap)} title="Toggle Minimap">
+          <ControlButton onClick={handleToggleMinimap} title="Toggle Minimap">
             <MapIcon size={14} />
           </ControlButton>
         </Controls>
