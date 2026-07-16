@@ -23,6 +23,7 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isDragActive, setIsDragActive] = useState(false);
+  const [notesHeight, setNotesHeight] = useState(() => localStorage.getItem('node-inspector-notes-height') || '');
 
   // Auto-focus the name input whenever a new node is selected/created
   useEffect(() => {
@@ -39,6 +40,8 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
       return () => clearTimeout(timer);
     }
   }, [node?.id, node?.data.isNew, onUpdateNode]);
+
+
 
   const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Tab' && !e.shiftKey) {
@@ -95,9 +98,25 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
     <div className="node-inspector glass">
       <div className="inspector-header">
         <h3>Edit Node</h3>
-        <button className="btn btn-icon" onClick={onClose} aria-label="Close">
-          <X size={16} />
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className="btn"
+            style={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.2)', 
+              color: '#ef4444', 
+              border: '1px solid rgba(239, 68, 68, 0.3)', 
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.75rem'
+            }}
+            onClick={() => onDeleteNode(node.id)}
+          >
+            <Trash2 size={14} style={{ marginRight: '4px' }} />
+            Delete Node
+          </button>
+          <button className="btn btn-icon" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="inspector-body">
@@ -143,6 +162,19 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
             ref={notesInputRef}
             className="input-field textarea-field"
             value={node.data.notes}
+            style={notesHeight ? { height: notesHeight } : undefined}
+            onPointerDown={() => {
+              // Listen globally for pointerup to catch when user releases mouse outside the textarea
+              const handlePointerUp = () => {
+                if (notesInputRef.current) {
+                  const newHeight = `${notesInputRef.current.offsetHeight}px`;
+                  setNotesHeight(newHeight);
+                  localStorage.setItem('node-inspector-notes-height', newHeight);
+                }
+                window.removeEventListener('pointerup', handlePointerUp);
+              };
+              window.addEventListener('pointerup', handlePointerUp);
+            }}
             onChange={(e) => onUpdateNode(node.id, { notes: e.target.value })}
             placeholder="Add detailed notes here..."
             rows={5}
@@ -211,16 +243,6 @@ export default function NodeInspector({ node, onClose, onUpdateNode, onDeleteNod
           )}
         </div>
 
-        <div className="form-group" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-          <button
-            className="btn"
-            style={{ width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}
-            onClick={() => onDeleteNode(node.id)}
-          >
-            <Trash2 size={16} style={{ marginRight: '8px' }} />
-            Delete Node
-          </button>
-        </div>
       </div>
     </div>
   );

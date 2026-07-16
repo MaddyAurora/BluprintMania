@@ -1,7 +1,10 @@
+import { useState } from 'react';
+import { Lock, Unlock, Map as MapIcon } from 'lucide-react';
 import {
   ReactFlow,
   Background,
   Controls,
+  ControlButton,
   MiniMap,
 } from '@xyflow/react';
 import type {
@@ -43,6 +46,9 @@ export default function BlueprintCanvas({
   onDragOver,
   onDrop,
 }: BlueprintCanvasProps) {
+  const [isLocked, setIsLocked] = useState(false);
+  const [showMinimap, setShowMinimap] = useState(true);
+
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <ReactFlow
@@ -62,14 +68,26 @@ export default function BlueprintCanvas({
         colorMode="dark"
         minZoom={0.2}
         maxZoom={4}
+        nodesDraggable={!isLocked}
+        nodesConnectable={true}
+        elementsSelectable={true}
       >
         <Background gap={24} size={2} color="rgba(255, 255, 255, 0.05)" />
-        <Controls />
-        <MiniMap 
-          zoomable 
-          pannable 
-          nodeColor={(n: any) => n.data?.color || '#646cff'} 
-        />
+        <Controls showInteractive={false}>
+          <ControlButton onClick={() => setIsLocked(!isLocked)} title="Toggle Interactivity">
+            {isLocked ? <Lock size={14} /> : <Unlock size={14} />}
+          </ControlButton>
+          <ControlButton onClick={() => setShowMinimap(!showMinimap)} title="Toggle Minimap">
+            <MapIcon size={14} />
+          </ControlButton>
+        </Controls>
+        {showMinimap && (
+          <MiniMap 
+            zoomable 
+            pannable 
+            nodeColor={(n: any) => n.data?.color || '#646cff'} 
+          />
+        )}
       </ReactFlow>
     </div>
   );

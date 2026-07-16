@@ -16,6 +16,7 @@
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -63,6 +64,7 @@
 .textarea-field {
   resize: vertical;
   min-height: 100px;
+  max-height: 55vh;
 }
 
 .color-picker {
@@ -108,7 +110,8 @@
   color: var(--text-muted);
 }
 
-.image-upload-zone:hover, .image-upload-zone.drag-active {
+.image-upload-zone:hover,
+.image-upload-zone.drag-active {
   border-color: var(--accent-color);
   background: rgba(100, 108, 255, 0.05);
   color: var(--text-primary);
