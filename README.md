@@ -2,7 +2,7 @@
 
 Welcome to **BluprintMania** — a dynamic, and highly interactive node-based blueprint editor. Built with modern web technologies, it allows you to map out your ideas, design architectures, and create stunning visual workflows with a sleek glassmorphism aesthetic.
 
-<img width="1523" height="863" alt="Screenshot 2026-07-14 035335" src="https://github.com/user-attachments/assets/28124323-bd06-4ca9-a8a3-73a69a34a2e6" />
+<img width="1905" height="910" alt="Screenshot 2026-07-27 021212" src="https://github.com/user-attachments/assets/421d9a3e-a831-48b9-a93e-20c55de63e9d" />
 
 
 ---
@@ -16,7 +16,7 @@ Welcome to **BluprintMania** — a dynamic, and highly interactive node-based bl
   - Add detailed multi-line notes.
   - Smoothly resize nodes from the corners to automatically reveal expanded content.
 - **🔗 Smart Connections**: Easily link nodes together with thick, interactive "cables."
-- **💾 Export to JSON**: One-click serialization of your entire blueprint (nodes, positions, edges, and notes) into a structured JSON file.
+- **💾 Import/Export to JSON**: One-click serialization of your entire blueprint (nodes, positions, edges, and notes) into a structured JSON file.
 
 ---
 
