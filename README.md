@@ -47,11 +47,10 @@ Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
    ```
 
 2. **Install / Update Dependencies**:
-   Simply double-click the `install.bat` file! This will automatically check for and install all required dependencies. If you already have them installed, it will safely update them to the latest compatible versions.
+   Simply double-click the `install.bat` file! This will automatically check and install all required dependencies. To update, run `update.bat` and it will safely update to the latest version.
 
 3. **Start the development server**:
    Double-click the `start_server.bat` file.
-   Alternatively, you can run `npm run dev` in your terminal.
 
 4. **Open the app**:
    Navigate to the URL provided in your terminal (usually `http://localhost:5173`).
